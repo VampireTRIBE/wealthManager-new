@@ -48,60 +48,60 @@ module.exports.systemBootup = async () => {
     // =========================
     // 2. INIT APPSCRIPT
     // =========================
-    // await runWithRetry(() => init_AppscriptMaster(), "INIT APPSCRIPT");
-    // log.success("INIT APPSCRIPT SUCCESSFULL");
+    await runWithRetry(() => init_AppscriptMaster(), "INIT APPSCRIPT");
+    log.success("INIT APPSCRIPT SUCCESSFULL");
 
-    // // =========================
-    // // 3. UPDATE NAV
-    // // =========================
-    // const [userIds, userNavMap] = await Promise.all([
-    //   get_AllUserIDs(),
-    //   get_LastNavDatesByUser(),
-    // ]);
-    // if (!userIds.length) {
-    //   log.error("No UserId Found...");
-    //   log.success("BOOTSTRAP COMPLETED SUCCESSFULLY");
-    //   return;
-    // }
-    // const BATCH_SIZE = 10;
-    // const MAX_RETRIES = 3;
-    // const retryUpdate = async (userId, attempt = 1) => {
-    //   try {
-    //     await sync_FillFutureNAVs(
-    //       userId,
-    //       userNavMap[userId].lastNavDate,
-    //       new Date(),
-    //     );
-    //     return { userId, success: true };
-    //   } catch (error) {
-    //     if (attempt < MAX_RETRIES) {
-    //       await delay(300 * attempt);
-    //       return retryUpdate(userId, attempt + 1);
-    //     }
-    //     return { userId, success: false, error };
-    //   }
-    // };
-    // let success = 0;
-    // let failed = [];
-    // for (let i = 0; i < userIds.length; i += BATCH_SIZE) {
-    //   const batch = userIds.slice(i, i + BATCH_SIZE);
-    //   const results = await Promise.all(
-    //     batch.map((userId) => retryUpdate(userId)),
-    //   );
-    //   results.forEach((r) => {
-    //     if (r.success) success++;
-    //     else failed.push(r);
-    //   });
-    // }
-    // if (failed.length > 0) {
-    //   failed.forEach((f) =>
-    //     log.error(`Failed userId: ${f.userId}, error: ${f.error?.message}`),
-    //   );
-    //   throw new Error(
-    //     `NAV UPDATE FAILED: ${failed.length} users failed, ${success} succeeded`,
-    //   );
-    // }
-    // log.success("Past Nav Update successful for all users");
+    // =========================
+    // 3. UPDATE NAV
+    // =========================
+    const [userIds, userNavMap] = await Promise.all([
+      get_AllUserIDs(),
+      get_LastNavDatesByUser(),
+    ]);
+    if (!userIds.length) {
+      log.error("No UserId Found...");
+      log.success("BOOTSTRAP COMPLETED SUCCESSFULLY");
+      return;
+    }
+    const BATCH_SIZE = 10;
+    const MAX_RETRIES = 3;
+    const retryUpdate = async (userId, attempt = 1) => {
+      try {
+        await sync_FillFutureNAVs(
+          userId,
+          userNavMap[userId].lastNavDate,
+          new Date(),
+        );
+        return { userId, success: true };
+      } catch (error) {
+        if (attempt < MAX_RETRIES) {
+          await delay(300 * attempt);
+          return retryUpdate(userId, attempt + 1);
+        }
+        return { userId, success: false, error };
+      }
+    };
+    let success = 0;
+    let failed = [];
+    for (let i = 0; i < userIds.length; i += BATCH_SIZE) {
+      const batch = userIds.slice(i, i + BATCH_SIZE);
+      const results = await Promise.all(
+        batch.map((userId) => retryUpdate(userId)),
+      );
+      results.forEach((r) => {
+        if (r.success) success++;
+        else failed.push(r);
+      });
+    }
+    if (failed.length > 0) {
+      failed.forEach((f) =>
+        log.error(`Failed userId: ${f.userId}, error: ${f.error?.message}`),
+      );
+      throw new Error(
+        `NAV UPDATE FAILED: ${failed.length} users failed, ${success} succeeded`,
+      );
+    }
+    log.success("Past Nav Update successful for all users");
 
     // =========================
     // DONE

@@ -1,3 +1,5 @@
+# <h1 style="color:red">> Frontend In Development</h1>
+
 # Portfolio Management System
 
 A Node.js backend for tracking financial asset portfolios with hierarchical grouping, FIFO accounting, and NAV-based performance measurement.
@@ -9,6 +11,7 @@ This is a personal finance tracking system that manages investments across stock
 ## Core Components
 
 ### Asset Management
+
 - **Classification System**: 5-tier hierarchy (Class > Category > Subcategory > Index Name > Asset)
 - **Metadata Storage**: ISIN codes, ticker symbols (NSE/BSE), currency, sector/industry/AMC mappings
 - **Price History**: Daily OHLC data fetched from Google Sheets via Apps Script
@@ -16,12 +19,14 @@ This is a personal finance tracking system that manages investments across stock
 - **In-Memory Cache**: Asset classifications and metadata cached on startup for fast lookups
 
 ### Portfolio Structure
+
 - **Hierarchical Groups**: Tree structure with 4 max levels (root > level 2 > level 3 > leaf)
 - **Leaf-Only Transactions**: Trading only allowed on leaf nodes
 - **Consolidated Metrics**: Cash, current value, tax roll up to parents
 - **Soft Delete**: Groups marked deleted, not destroyed
 
 ### Transaction Engine
+
 - **Trade Types**: Buy, sell, dividend
 - **FIFO Lot Tracking**: Cost basis tracked per purchase lot, oldest sold first
 - **Capital Gains**: STCG (<365 days), LTCG (>365 days) calculated automatically
@@ -30,6 +35,7 @@ This is a personal finance tracking system that manages investments across stock
 - **NAV Gap Filling**: Missing NAV entries backfilled before new transactions
 
 ### NAV System
+
 - **Unit-Based Accounting**: Deposits/withdrawals change units at current NAV
 - **Market Updates**: Price changes modify NAV while units stay constant
 - **Tax Treatment**: Reduces value without changing units
@@ -37,6 +43,7 @@ This is a personal finance tracking system that manages investments across stock
 - **Bottom-Up Propagation**: Leaf values aggregate to parents
 
 ### Financial Snapshots
+
 - **Current Position**: Total quantity, investment value, current value
 - **Lifetime Metrics**: Realized gains, dividends (cumulative)
 - **Financial Year**: Realized gains, dividends, unrealized gains, total gains (April 1 start)
@@ -54,6 +61,7 @@ This is a personal finance tracking system that manages investments across stock
 ## Data Models
 
 ### Asset Classification
+
 ```
 AssetClass (INDEX, ETF, MUTUAL FUND, BOND, STOCK)
   └─ AssetCategory
@@ -67,6 +75,7 @@ AssetAMC (standalone)
 ```
 
 ### Portfolio Hierarchy
+
 ```
 PortfolioGroup (level 1, root)
   └─ PortfolioGroup (level 2)
@@ -77,6 +86,7 @@ PortfolioGroup (level 1, root)
 ```
 
 ### Transaction Ledgers
+
 - **LedgerStatement**: Buy/sell/dividend transactions per asset
 - **GroupStatement**: Deposit/withdrawal/tax transactions per group
 - **FifoLot**: Individual purchase lots with remaining quantity
@@ -85,17 +95,20 @@ PortfolioGroup (level 1, root)
 ## API Routes
 
 ### User Routes (`/`)
+
 - `POST /signup` - Register new user (creates default root portfolio group)
 - `POST /login` - Authenticate user
 - `GET /logout` - End session
 - `GET /islogedin` - Check auth status
 
 ### Admin Routes (`/admin/dataseeders`)
+
 - `POST /seedclassification` - Update asset classification tree from Google Sheets
 - `POST /seedassetmetadata` - Update asset metadata from Google Sheets
 - `POST /seedpricehistory` - Insert historical prices for specific asset
 
 ### Portfolio Routes (`/portfolio`)
+
 - `POST /:pg_id` - Create child group
 - `PATCH /:pg_id` - Update group name/description
 - `DELETE /:pg_id` - Soft delete group and descendants
@@ -132,6 +145,7 @@ PortfolioGroup (level 1, root)
 ## Configuration
 
 Environment variables required:
+
 ```
 NODE_ENV
 DB_URL
@@ -141,6 +155,7 @@ APPSCRIPT_SEEDER_API_KEY
 ```
 
 ## CORS Policy
+
 ```javascript
 origin: localhost:5173 or 192.168.x.x
 credentials: true
@@ -153,4 +168,3 @@ npm install
 # Set environment variables
 node server.js
 ```
-
